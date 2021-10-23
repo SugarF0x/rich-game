@@ -1,9 +1,17 @@
-<template>
-  <Tutorial/>
-</template>
+<script lang='ts'>
+import { defineComponent } from '@nuxtjs/composition-api'
+import RLGL from '~/components/RLGL.vue'
 
-<script lang="ts">
-import Vue from 'vue'
+export default defineComponent({
+  components: {
+    RLGL
+  },
+  setup() {
 
-export default Vue.extend({})
+  }
+})
 </script>
+
+<template>
+  <RLGL />
+</template>
