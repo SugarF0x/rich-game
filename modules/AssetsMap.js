@@ -90,8 +90,10 @@ async function getFiles() {
     )
   })()
 
-  const types = await quicktypeJSON('ts', 'AssetsMap', json)
-  const dts = types.lines.join('\n')
+  const { lines } = await quicktypeJSON('ts', 'AssetsMap', json)
+  lines.splice(0, 9)
+  lines.length = lines.indexOf('// Converts JSON strings to/from your types')
+  const dts = lines.join('\n')
 
   return {
     json,
