@@ -1,44 +1,42 @@
 import { actionTree, mutationTree } from 'typed-vuex'
+import { each, get, set } from 'lodash'
+import { urlToUri } from '~/utils'
+import { AssetsMap } from '~/static/assets/map'
 
-async function urlContentToDataUri(url: string): Promise<string> {
-  return await fetch(url)
-    .then((response) => response.blob())
-    .then(
-      (blob) =>
-        new Promise((resolve) => {
-          const reader = new FileReader()
-          reader.onload = function () {
-            resolve(this.result as string)
-          }
-          reader.readAsDataURL(blob)
-        })
-    )
-}
+export type AssetsState = Pick<AssetsMap, 'entries'> &
+  AssetsMap['assets'] & {
+    loaded: number
+  }
 
-export const state = () => ({
-  total: 6,
+export const state = (): AssetsState => ({
   loaded: 0,
-  images: {
-    bullAngry: '/images/bull_angry.png',
-    bullHappy: '/images/bull_happy.png',
-    doll: '/images/doll.jpg',
-  },
-  sounds: {
-    boom: '/sounds/boom.mp3',
-    dollSong: '/sounds/doll_song.mp3',
-    gunshot: '/sounds/gunshot.mp3',
-  },
+  entries: undefined!,
+  images: undefined!,
+  sounds: undefined!,
 })
 
-type AssetsState = ReturnType<typeof state>
-
 export const mutations = mutationTree(state, {
-  ADD_IMAGE(state, payload: { target: keyof AssetsState['images']; value: string }) {
-    state.images[payload.target] = payload.value
-    state.loaded++
+  SET_ASSETS_MAP: (state, payload: AssetsMap) => {
+    Object.assign(state, { entries: payload.entries, ...payload.assets })
   },
-  ADD_SOUND(state, payload: { target: keyof AssetsState['sounds']; value: string }) {
-    state.sounds[payload.target] = payload.value
+  SET_ASSET(state, payload: { path: string; value: string }) {
+    const { path, value } = payload
+    const nests = path.split('/')
+    nests.shift()
+    const name = nests.pop()!.split('.')[0]
+    const isNumeric = !isNaN(Number(name))
+    const storePath = nests.join('.')
+
+    if (!isNumeric) {
+      set(state, `${storePath}.${name}`, value)
+    } else {
+      const isInitial = !get(state, storePath)[0].includes('data:')
+      if (!isInitial) {
+        set(state, storePath, [...(get(state, storePath) as any), value])
+      } else {
+        set(state, storePath, [value])
+      }
+    }
     state.loaded++
   },
 })
@@ -46,20 +44,33 @@ export const mutations = mutationTree(state, {
 export const actions = actionTree(
   { state, mutations },
   {
+    async getAssetsMap({ state, commit, dispatch }) {
+      if (typeof state.entries !== 'undefined') return
+
+      await fetch('/assets/map.json')
+        .then((response) => response.json())
+        .then((json) => {
+          commit('SET_ASSETS_MAP', json)
+        })
+        .then(() => {
+          dispatch('getAssets')
+        })
+    },
+
     async getAssets({ state, commit }) {
-      const images = Object.entries(state.images)
-      for (const image of images) {
-        const [key, value] = image as [keyof AssetsState['images'], string]
-        const data = await urlContentToDataUri(value)
-        commit('ADD_IMAGE', { target: key, value: data })
+      async function fetchEach(obj: Record<string, any>) {
+        await each(obj, async (path: any) => {
+          if (typeof path === 'object') {
+            fetchEach(path)
+          } else {
+            const value = (await urlToUri(path)) as string
+            commit('SET_ASSET', { path, value })
+          }
+        })
       }
 
-      const sounds = Object.entries(state.sounds)
-      for (const sound of sounds) {
-        const [key, value] = sound as [keyof AssetsState['sounds'], string]
-        const data = await urlContentToDataUri(value)
-        commit('ADD_SOUND', { target: key, value: data })
-      }
+      await fetchEach(state.images)
+      await fetchEach(state.sounds)
     },
   }
 )

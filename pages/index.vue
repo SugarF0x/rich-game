@@ -9,19 +9,19 @@ export default defineComponent({
   },
   setup() {
     const store = useStore()
-    const total = computed(() => store.assets.total)
+    const entries = computed(() => store.assets.entries)
     const loaded = computed(() => store.assets.loaded)
 
     const isStarted = ref(false)
 
     onMounted(() => {
-      if (loaded.value === 0) {
-        store.assets.getAssets()
+      if (typeof entries.value === 'undefined') {
+        store.assets.getAssetsMap()
       }
     })
 
     return {
-      total,
+      entries,
       loaded,
       isStarted,
     }
@@ -31,9 +31,9 @@ export default defineComponent({
 
 <template>
   <div class="wrapper">
-    <div v-if="loaded !== total">
+    <div v-if="loaded !== entries">
       <h1>Loading assets</h1>
-      <h2>{{ loaded }} / {{ total }}</h2>
+      <h2>{{ loaded || '-' }} / {{ entries || '-' }}</h2>
     </div>
     <div v-else-if="!isStarted">
       <h1>All assets loaded</h1>

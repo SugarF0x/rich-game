@@ -88,3 +88,7 @@ sw.*
 
 # Vim swap files
 *.swp
+
+# assets build time files
+static/assets/map.d.ts
+static/assets/map.json

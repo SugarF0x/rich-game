@@ -37,6 +37,7 @@ export default {
     '@nuxt/typescript-build',
     '@nuxtjs/composition-api/module',
     'nuxt-typed-vuex',
+    '~/modules/AssetsMap'
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -53,8 +54,7 @@ export default {
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {
-  },
+  build: {},
   generate: {
     interval: 2000
   }

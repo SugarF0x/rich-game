@@ -1,30 +1,34 @@
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref } from '@nuxtjs/composition-api'
+import { defineComponent, onMounted, onUnmounted, ref, computed } from '@nuxtjs/composition-api'
 import Doll from './RLGL/Doll.vue'
+import { useStore } from '~/hooks'
 
 export default defineComponent({
   components: {
     Doll,
   },
   setup() {
+    const store = useStore()
+    const sounds = computed(() => store.assets.sounds)
+
     const isAngry = ref(false)
     const isFinished = ref(false)
 
-    const song = ref(new Audio('/sounds/doll_song.mp3'))
-    const gunshot = ref(new Audio('/sounds/gunshot.mp3'))
-    const boom = ref(new Audio('/sounds/boom.mp3'))
+    const dollSong = computed(() => new Audio(sounds.value.dollSong))
+    const gunshot = computed(() => new Audio(sounds.value.gunshot))
+    const boom = computed(() => new Audio(sounds.value.boom))
 
     const start = () => {
-      song.value.onended = () => {
+      dollSong.value.onended = () => {
         isAngry.value = true
         boom.value.play()
         setTimeout(() => {
           isAngry.value = false
-          if (!isFinished.value) song.value.play()
+          if (!isFinished.value) dollSong.value.play()
         }, 3000)
       }
 
-      song.value.play()
+      dollSong.value.play()
     }
 
     onMounted(() => {
@@ -34,7 +38,7 @@ export default defineComponent({
     })
 
     onUnmounted(() => {
-      song.value.pause()
+      dollSong.value.pause()
       gunshot.value.pause()
       boom.value.pause()
     })
