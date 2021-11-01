@@ -104,17 +104,6 @@ async function getFiles() {
 export default async function () {
   const { json, dts } = await getFiles()
 
-  const ignoreConfig = `
-# assets build time files
-static/assets/map.d.ts
-static/assets/map.json
-`
-
-  const ignore = fs.readFileSync('.gitignore')
-  if (!ignore.includes(ignoreConfig)) {
-    fs.writeFileSync('.gitignore', ignore + ignoreConfig)
-  }
-
   fs.writeFileSync('static/assets/map.json', json)
   fs.writeFileSync('static/assets/map.d.ts', dts)
 }
