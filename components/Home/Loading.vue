@@ -3,6 +3,7 @@ import { computed, defineComponent, onMounted } from '@nuxtjs/composition-api'
 import { PixelSpinner } from 'epic-spinners' // @ts-ignore
 import RadialProgressBar from 'vue-radial-progress'
 import { useStore } from '~/hooks'
+import { emptySoundData } from '~/consts'
 
 export default defineComponent({
   components: {
@@ -23,6 +24,7 @@ export default defineComponent({
     })
 
     const proceed = () => {
+      store.assets.SET_SOUND_SRC(emptySoundData)
       store.settings.SET_SCREEN('character')
     }
 

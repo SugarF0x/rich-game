@@ -4,6 +4,7 @@ import Doll from './Doll.vue'
 import Track from './Track.vue'
 import Controls from './Controls.vue'
 import { useStore } from '~/hooks'
+import { emptySoundData } from '~/consts'
 
 interface PlayerState {
   isAlive: boolean
@@ -33,16 +34,13 @@ export default defineComponent({
     ])
     const isPlayerFinished = ref(false)
 
-    const dollSong = computed(() => new Audio(sounds.value.dollSong))
-    const gunshot = computed(() => new Audio(sounds.value.gunshot))
-    const boom = computed(() => new Audio(sounds.value.boom))
-
     const start = () => {
-      isGreen.value = true
-      dollSong.value.onended = () => {
+      function cycle() {
+        store.assets.SET_SOUND_ONEND(() => null)
+
         isAngry.value = true
         isGreen.value = false
-        boom.value.play()
+        store.assets.SET_SOUND_SRC(sounds.value.boom)
 
         setTimeout(() => {
           const alivePlayers = players.value.reduce((acc, val, i) => {
@@ -54,7 +52,7 @@ export default defineComponent({
               const newPlayers = [...players.value]
               newPlayers[alivePlayers[Math.floor(Math.random() * alivePlayers.length)]].isAlive = false
               players.value = newPlayers
-              gunshot.value.play()
+              store.assets.SET_SOUND_SRC(sounds.value.gunshot)
               if (alivePlayers.length === 1 && isPlayerFinished.value) {
                 isFinished.value = true
               }
@@ -62,18 +60,21 @@ export default defineComponent({
           } else if (isPlayerFinished.value) {
             isFinished.value = true
           }
-        }, 1000)
+        }, 2000)
 
         setTimeout(() => {
           isAngry.value = false
           if (!isFinished.value) {
-            dollSong.value.play()
+            store.assets.SET_SOUND_ONEND(cycle)
+            store.assets.SET_SOUND_SRC(sounds.value.dollSong)
             isGreen.value = true
           }
         }, 3000)
       }
 
-      dollSong.value.play()
+      isGreen.value = true
+      store.assets.SET_SOUND_ONEND(cycle)
+      store.assets.SET_SOUND_SRC(sounds.value.dollSong)
     }
 
     onMounted(() => {
@@ -83,9 +84,8 @@ export default defineComponent({
     })
 
     onUnmounted(() => {
-      dollSong.value.pause()
-      gunshot.value.pause()
-      boom.value.pause()
+      store.assets.SET_SOUND_ONEND(() => null)
+      store.assets.SET_SOUND_SRC(emptySoundData)
     })
 
     const handleFinish = (order: number) => {

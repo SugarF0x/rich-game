@@ -6,6 +6,7 @@ import { AssetsMap } from '~/static/assets/map'
 export type AssetsState = Pick<AssetsMap, 'entries'> &
   AssetsMap['assets'] & {
     loaded: number
+    soundEngine: HTMLAudioElement
   }
 
 export const state = (): AssetsState => ({
@@ -13,6 +14,11 @@ export const state = (): AssetsState => ({
   entries: undefined!,
   images: undefined!,
   sounds: undefined!,
+  soundEngine: (() => {
+    const audio = new Audio()
+    audio.autoplay = true
+    return audio
+  })(),
 })
 
 export const mutations = mutationTree(state, {
@@ -38,6 +44,12 @@ export const mutations = mutationTree(state, {
       }
     }
     state.loaded++
+  },
+  SET_SOUND_SRC(state, payload: string) {
+    state.soundEngine.src = payload
+  },
+  SET_SOUND_ONEND(state, payload: () => void) {
+    state.soundEngine.onended = payload
   },
 })
 
