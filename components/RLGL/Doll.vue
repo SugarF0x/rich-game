@@ -9,12 +9,12 @@ export default defineComponent({
   setup() {
     const store = useStore()
 
-    const { bullHappy, bullAngry, doll } = store.assets.images
+    const { bullHappy, bullAngry, bg } = store.assets.images.RLGL.doll
     const { boom, gunshot, dollSong } = store.assets.sounds
 
     const happyImage = computed(() => ({ backgroundImage: `url(${bullHappy})` }))
     const angryImage = computed(() => ({ backgroundImage: `url(${bullAngry})` }))
-    const dollImage = computed(() => ({ backgroundImage: `url(${doll})` }))
+    const dollImage = computed(() => ({ backgroundImage: `url(${bg})` }))
 
     return {
       happyImage,
@@ -42,6 +42,7 @@ export default defineComponent({
   height: 100px;
   background-repeat: no-repeat;
   background-position: center;
+  overflow: hidden;
 }
 
 .bg {
