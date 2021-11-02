@@ -19,6 +19,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .wrapper {
   width: 100%;
+  height: 100%;
   max-width: 400px;
   margin: 0 auto;
   text-align: center;

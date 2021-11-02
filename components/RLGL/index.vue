@@ -2,6 +2,7 @@
 import { defineComponent, onMounted, onUnmounted, ref, computed } from '@nuxtjs/composition-api'
 import Doll from './Doll.vue'
 import Track from './Track.vue'
+import Controls from './Controls.vue'
 import { useStore } from '~/hooks'
 
 interface PlayerState {
@@ -13,6 +14,7 @@ export default defineComponent({
   components: {
     Doll,
     Track,
+    Controls,
   },
   setup() {
     const store = useStore()
@@ -29,6 +31,7 @@ export default defineComponent({
       { isAlive: true, isFinished: false },
       { isAlive: true, isFinished: false },
     ])
+    const isPlayerFinished = ref(false)
 
     const dollSong = computed(() => new Audio(sounds.value.dollSong))
     const gunshot = computed(() => new Audio(sounds.value.gunshot))
@@ -52,11 +55,11 @@ export default defineComponent({
               newPlayers[alivePlayers[Math.floor(Math.random() * alivePlayers.length)]].isAlive = false
               players.value = newPlayers
               gunshot.value.play()
-              if (alivePlayers.length === 1) {
+              if (alivePlayers.length === 1 && isPlayerFinished.value) {
                 isFinished.value = true
               }
             }
-          } else {
+          } else if (isPlayerFinished.value) {
             isFinished.value = true
           }
         }, 1000)
@@ -86,33 +89,59 @@ export default defineComponent({
     })
 
     const handleFinish = (order: number) => {
+      if (order === -1) {
+        isPlayerFinished.value = true
+        return
+      }
+
       const newPlayers = [...players.value]
       newPlayers[order] = { ...newPlayers[order], isFinished: true }
       players.value = newPlayers
     }
 
+    const step = ref(0)
+    const handleStep = () => {
+      step.value++
+    }
+
     return {
       isAngry,
       isGreen,
+      isPlayerFinished,
       players,
       handleFinish,
+      step,
+      handleStep,
     }
   },
 })
 </script>
 
 <template>
-  <div id="RLGL">
-    <Doll :is-angry="isAngry" />
+  <div class="RLGL">
+    <Doll class="doll" :is-angry="isAngry" />
+    <Track class="track" is-player is-alive :is-green="isGreen" :player-step="step" @finish="handleFinish" />
     <Track
       v-for="(player, n) in players"
       :key="n"
+      class="track"
       :order="n"
       :is-green="isGreen"
       :is-alive="player.isAlive"
       @finish="handleFinish"
     />
+    <Controls class="controls" :is-green="isGreen" :is-finished="isPlayerFinished" @step="handleStep" />
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.RLGL {
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
+
+.track {
+  flex: 1;
+}
+</style>

@@ -9,12 +9,16 @@ export default defineComponent({
     isGreen: Boolean,
     order: {
       type: Number,
-      required: true,
+      default: -1,
+    },
+    playerStep: {
+      type: Number,
+      default: null,
     },
   },
   emits: ['finish'],
   setup(props, { emit }) {
-    const { isPlayer, isAlive, isGreen, order } = toRefs(props)
+    const { isPlayer, isAlive, isGreen, order, playerStep } = toRefs(props)
     const store = useStore()
 
     const playerImage = ref('')
@@ -33,14 +37,20 @@ export default defineComponent({
         steps.value = newValue
         if (tilt.value === -1) tilt.value = 1
         else tilt.value = -1
-        setTimeout(() => {
-          if (isGreen.value) step()
-        }, 250)
+        if (!isPlayer.value) {
+          setTimeout(() => {
+            if (isGreen.value) step()
+          }, 250)
+        }
       }
     }
 
-    watch(isGreen, () => {
-      if (isGreen.value && isAlive.value && !isFinished.value) step()
+    watch([isGreen], () => {
+      if (!isPlayer.value && isGreen.value && isAlive.value && !isFinished.value) step()
+    })
+
+    watch([playerStep], () => {
+      step()
     })
 
     onMounted(() => {
@@ -48,7 +58,8 @@ export default defineComponent({
         const images = store.assets.images.players.common
         playerImage.value = images[Math.floor(Math.random() * images.length)]
       } else {
-        playerImage.value = store.assets.images.players.puma
+        playerImage.value =
+          store.settings.player === 'puma' ? store.assets.images.players.puma : store.assets.images.players.rich
       }
     })
 
@@ -108,5 +119,6 @@ export default defineComponent({
   height: 60px;
   background-size: contain;
   top: 50%;
+  transition: linear 0.2s;
 }
 </style>

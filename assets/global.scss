@@ -1,5 +1,9 @@
 html, body {
   margin: 0;
-  background-color: rgb(47, 47, 47);
+  background-color: black;
   color: white;
+}
+
+html, body, #__nuxt, #__layout {
+  height: 100%
 }
