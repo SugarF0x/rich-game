@@ -94,7 +94,7 @@ export default defineComponent({
 .track {
   position: relative;
   width: 100%;
-  height: 100px;
+  height: 72px;
   border-color: white;
   border-style: solid;
   border-width: 1px 2px;

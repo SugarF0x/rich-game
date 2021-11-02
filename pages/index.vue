@@ -1,48 +1,18 @@
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from '@nuxtjs/composition-api'
-import RLGL from '~/components/RLGL.vue'
-import { useStore } from '~/hooks'
+import { defineComponent } from '@nuxtjs/composition-api'
+import Home from '~/components/Home/index.vue'
 
 export default defineComponent({
   components: {
-    RLGL,
+    Home,
   },
-  setup() {
-    const store = useStore()
-    const entries = computed(() => store.assets.entries)
-    const loaded = computed(() => store.assets.loaded)
-
-    const isStarted = ref(false)
-
-    onMounted(() => {
-      if (typeof entries.value === 'undefined') {
-        store.assets.getAssetsMap()
-      }
-    })
-
-    return {
-      entries,
-      loaded,
-      isStarted,
-    }
-  },
+  setup() {},
 })
 </script>
 
 <template>
   <div class="wrapper">
-    <div v-if="loaded !== entries">
-      <h1>Loading assets</h1>
-      <h2>{{ loaded || '-' }} / {{ entries || '-' }}</h2>
-    </div>
-    <div v-else-if="!isStarted">
-      <h1>All assets loaded</h1>
-      <h2>Press &lt;START&gt; to begin</h2>
-      <button class="start" @click="isStarted = true">START</button>
-    </div>
-    <div v-else class="game">
-      <RLGL />
-    </div>
+    <Home />
   </div>
 </template>
 
@@ -52,10 +22,5 @@ export default defineComponent({
   max-width: 400px;
   margin: 0 auto;
   text-align: center;
-}
-
-.start {
-  margin-top: 100px;
-  font-size: 300%;
 }
 </style>

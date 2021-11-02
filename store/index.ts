@@ -1,25 +1,15 @@
 import { getAccessorType, getterTree, mutationTree, actionTree } from 'typed-vuex'
 
-import * as assets from '~/store/assets'
+import * as assets from './assets'
+import * as settings from './settings'
 
-export const state = () => ({
+export const state = () => ({})
 
-})
+export const getters = getterTree(state, {})
 
-export const getters = getterTree(state, {
+export const mutations = mutationTree(state, {})
 
-})
-
-export const mutations = mutationTree(state, {
-
-})
-
-export const actions = actionTree(
-  { state, getters, mutations },
-  {
-
-  }
-)
+export const actions = actionTree({ state, getters, mutations }, {})
 
 export const accessorType = getAccessorType({
   state,
@@ -28,5 +18,6 @@ export const accessorType = getAccessorType({
   actions,
   modules: {
     assets,
+    settings,
   },
 })

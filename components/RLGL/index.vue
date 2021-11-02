@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted, ref, computed } from '@nuxtjs/composition-api'
-import Doll from './RLGL/Doll.vue'
-import Track from './RLGL/Track.vue'
+import Doll from './Doll.vue'
+import Track from './Track.vue'
 import { useStore } from '~/hooks'
 
 interface PlayerState {
